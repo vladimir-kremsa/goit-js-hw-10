@@ -17,6 +17,31 @@ let timerId = null;
 
 refs.startBtn.disabled = true;
 
+function addLeadingZero(value) {
+  return String(value).padStart(2, '0');
+}
+
+function convertMs(ms) {
+  const second = 1000;
+  const minute = second * 60;
+  const hour = minute * 60;
+  const day = hour * 24;
+
+  const days = Math.floor(ms / day);
+  const hours = Math.floor((ms % day) / hour);
+  const minutes = Math.floor(((ms % day) % hour) / minute);
+  const seconds = Math.floor((((ms % day) % hour) % minute) / second);
+
+  return { days, hours, minutes, seconds };
+}
+
+function updateInterface({ days, hours, minutes, seconds }) {
+  refs.days.textContent = addLeadingZero(days);
+  refs.hours.textContent = addLeadingZero(hours);
+  refs.minutes.textContent = addLeadingZero(minutes);
+  refs.seconds.textContent = addLeadingZero(seconds);
+}
+
 const options = {
   enableTime: true,
   time_24hr: true,
@@ -45,6 +70,9 @@ refs.startBtn.addEventListener('click', () => {
   refs.startBtn.disabled = true;
   refs.input.disabled = true;
 
+  const initialDelta = userSelectedDate - new Date();
+  updateInterface(convertMs(initialDelta));
+
   timerId = setInterval(() => {
     const now = new Date();
     const delta = userSelectedDate - now;
@@ -56,32 +84,6 @@ refs.startBtn.addEventListener('click', () => {
       return;
     }
 
-    const time = convertMs(delta);
-    updateInterface(time);
+    updateInterface(convertMs(delta));
   }, 1000);
 });
-
-function convertMs(ms) {
-  const second = 1000;
-  const minute = second * 60;
-  const hour = minute * 60;
-  const day = hour * 24;
-
-  const days = Math.floor(ms / day);
-  const hours = Math.floor((ms % day) / hour);
-  const minutes = Math.floor(((ms % day) % hour) / minute);
-  const seconds = Math.floor((((ms % day) % hour) % minute) / second);
-
-  return { days, hours, minutes, seconds };
-}
-
-function addLeadingZero(value) {
-  return String(value).padStart(2, '0');
-}
-
-function updateInterface({ days, hours, minutes, seconds }) {
-  refs.days.textContent = addLeadingZero(days);
-  refs.hours.textContent = addLeadingZero(hours);
-  refs.minutes.textContent = addLeadingZero(minutes);
-  refs.seconds.textContent = addLeadingZero(seconds);
-}
